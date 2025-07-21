@@ -1,0 +1,425 @@
+{% extends "base.html" %}
+
+{% block title %}Live Camera - PlantDiagnose{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="glass-card p-5 fade-in-up">
+                <!-- Header -->
+                <div class="text-center mb-4">
+                    <div class="mb-3">
+                        <i class="fas fa-camera fa-4x icon-gradient"></i>
+                    </div>
+                    <h2 class="fw-bold">Live Camera Analysis</h2>
+                    <p class="text-muted">Capture a live photo for instant AI diagnosis</p>
+                </div>
+
+                <!-- Camera Interface -->
+                <div class="camera-interface">
+                    <div class="camera-container">
+                        <video id="video" autoplay playsinline class="camera-video"></video>
+                        <canvas id="canvas" class="camera-canvas" style="display: none;"></canvas>
+                        
+                        <!-- Camera Overlay -->
+                        <div class="camera-overlay">
+                            <div class="focus-frame">
+                                <div class="corner top-left"></div>
+                                <div class="corner top-right"></div>
+                                <div class="corner bottom-left"></div>
+                                <div class="corner bottom-right"></div>
+                            </div>
+                            <div class="camera-instructions">
+                                <p class="mb-0">Position the plant within the frame</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Camera Controls -->
+                    <div class="camera-controls text-center mt-4">
+                        <button id="startCamera" class="btn btn-secondary-modern btn-modern">
+                            <i class="fas fa-play"></i>Start Camera
+                        </button>
+                        <button id="capturePhoto" class="btn btn-primary-modern btn-modern" style="display: none;">
+                            <i class="fas fa-camera"></i>Capture Photo
+                        </button>
+                        <button id="retakePhoto" class="btn btn-outline-modern btn-modern" style="display: none;">
+                            <i class="fas fa-redo"></i>Retake
+                        </button>
+                        <button id="analyzePhoto" class="btn btn-success-modern btn-modern" style="display: none;">
+                            <i class="fas fa-microscope"></i>Analyze Plant
+                        </button>
+                    </div>
+
+                    <!-- Camera Settings -->
+                    <div class="camera-settings mt-4">
+                        <div class="row g-3 justify-content-center">
+                            <div class="col-md-4">
+                                <select id="cameraSelect" class="form-control-modern form-select">
+                                    <option value="">Select Camera...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button id="switchCamera" class="btn btn-outline-modern btn-modern w-100">
+                                    <i class="fas fa-sync-alt"></i>Switch Camera
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Captured Image Preview -->
+                <div id="capturedImageContainer" class="captured-image-container mt-4" style="display: none;">
+                    <div class="text-center mb-3">
+                        <h4 class="fw-bold">Captured Image</h4>
+                    </div>
+                    <div class="captured-image-wrapper">
+                        <img id="capturedImage" src="" alt="Captured Image" class="captured-image">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content text-center">
+        <div class="spinner-border mb-3" style="color: var(--primary); width: 3rem; height: 3rem;"></div>
+        <h4 class="fw-bold">Analyzing captured image...</h4>
+        <p class="text-muted">Our AI is examining your plant photo for diseases</p>
+        <div class="progress mt-3" style="height: 6px; border-radius: 10px; background: var(--gray-200);">
+            <div class="progress-bar" style="width: 0%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 10px;"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+.camera-container {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--gray-900);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.camera-video, .camera-canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 20px;
+}
+
+.camera-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.focus-frame {
+    position: relative;
+    width: 80%;
+    height: 80%;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
+}
+
+.corner {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 3px solid var(--primary);
+}
+
+.corner.top-left {
+    top: -3px;
+    left: -3px;
+    border-right: none;
+    border-bottom: none;
+    border-radius: 15px 0 0 0;
+}
+
+.corner.top-right {
+    top: -3px;
+    right: -3px;
+    border-left: none;
+    border-bottom: none;
+    border-radius: 0 15px 0 0;
+}
+
+.corner.bottom-left {
+    bottom: -3px;
+    left: -3px;
+    border-right: none;
+    border-top: none;
+    border-radius: 0 0 0 15px;
+}
+
+.corner.bottom-right {
+    bottom: -3px;
+    right: -3px;
+    border-left: none;
+    border-top: none;
+    border-radius: 0 0 15px 0;
+}
+
+.camera-instructions {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.camera-controls {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.captured-image {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.captured-image-wrapper {
+    text-align: center;
+}
+
+.loading-content {
+    max-width: 400px;
+    padding: 2rem;
+}
+
+@media (max-width: 768px) {
+    .camera-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .camera-controls .btn {
+        width: 200px;
+    }
+    
+    .glass-card {
+        padding: 2rem !important;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+class ModernCamera {
+    constructor() {
+        this.video = document.getElementById('video');
+        this.canvas = document.getElementById('canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.stream = null;
+        this.devices = [];
+        this.currentDeviceIndex = 0;
+        
+        this.initializeElements();
+        this.setupEventListeners();
+        this.enumerateDevices();
+    }
+
+    initializeElements() {
+        this.startButton = document.getElementById('startCamera');
+        this.captureButton = document.getElementById('capturePhoto');
+        this.retakeButton = document.getElementById('retakePhoto');
+        this.analyzeButton = document.getElementById('analyzePhoto');
+        this.switchButton = document.getElementById('switchCamera');
+        this.cameraSelect = document.getElementById('cameraSelect');
+        this.capturedImageContainer = document.getElementById('capturedImageContainer');
+        this.capturedImage = document.getElementById('capturedImage');
+        this.loadingOverlay = document.getElementById('loadingOverlay');
+    }
+
+    setupEventListeners() {
+        this.startButton.addEventListener('click', () => this.startCamera());
+        this.captureButton.addEventListener('click', () => this.capturePhoto());
+        this.retakeButton.addEventListener('click', () => this.retakePhoto());
+        this.analyzeButton.addEventListener('click', () => this.analyzePhoto());
+        this.switchButton.addEventListener('click', () => this.switchCamera());
+        this.cameraSelect.addEventListener('change', (e) => this.selectCamera(e.target.value));
+    }
+
+    async enumerateDevices() {
+        try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            this.devices = devices.filter(device => device.kind === 'videoinput');
+            
+            this.cameraSelect.innerHTML = '<option value="">Select Camera...</option>';
+            this.devices.forEach((device, index) => {
+                const option = document.createElement('option');
+                option.value = device.deviceId;
+                option.textContent = device.label || `Camera ${index + 1}`;
+                this.cameraSelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error enumerating devices:', error);
+        }
+    }
+
+    async startCamera(deviceId = null) {
+        try {
+            const constraints = {
+                video: {
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    facingMode: deviceId ? undefined : 'environment'
+                }
+            };
+
+            if (deviceId) {
+                constraints.video.deviceId = { exact: deviceId };
+            }
+
+            this.stream = await navigator.mediaDevices.getUserMedia(constraints);
+            this.video.srcObject = this.stream;
+            
+            this.video.onloadedmetadata = () => {
+                this.canvas.width = this.video.videoWidth;
+                this.canvas.height = this.video.videoHeight;
+            };
+
+            this.startButton.style.display = 'none';
+            this.captureButton.style.display = 'inline-block';
+            this.switchButton.style.display = 'inline-block';
+
+        } catch (error) {
+            console.error('Error starting camera:', error);
+            alert('Error accessing camera. Please ensure camera permissions are granted.');
+        }
+    }
+
+    stopCamera() {
+        if (this.stream) {
+            this.stream.getTracks().forEach(track => track.stop());
+            this.stream = null;
+        }
+    }
+
+    capturePhoto() {
+        this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
+        
+        const imageDataUrl = this.canvas.toDataURL('image/jpeg', 0.8);
+        this.capturedImage.src = imageDataUrl;
+        
+        this.video.style.display = 'none';
+        this.capturedImageContainer.style.display = 'block';
+        
+        this.captureButton.style.display = 'none';
+        this.retakeButton.style.display = 'inline-block';
+        this.analyzeButton.style.display = 'inline-block';
+        this.switchButton.style.display = 'none';
+    }
+
+    retakePhoto() {
+        this.video.style.display = 'block';
+        this.capturedImageContainer.style.display = 'none';
+        
+        this.captureButton.style.display = 'inline-block';
+        this.retakeButton.style.display = 'none';
+        this.analyzeButton.style.display = 'none';
+        this.switchButton.style.display = 'inline-block';
+    }
+
+    async analyzePhoto() {
+        try {
+            this.showLoading();
+            
+            const imageDataUrl = this.canvas.toDataURL('image/jpeg', 0.8);
+            
+            const response = await fetch('/predict_camera', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    image: imageDataUrl
+                })
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                sessionStorage.setItem('cameraResult', JSON.stringify(result.result));
+                window.location.href = '/camera-result';
+            } else {
+                alert(`Error: ${result.error}`);
+                this.hideLoading();
+            }
+
+        } catch (error) {
+            console.error('Error analyzing photo:', error);
+            alert('Error analyzing photo. Please try again.');
+            this.hideLoading();
+        }
+    }
+
+    showLoading() {
+        this.loadingOverlay.classList.add('show');
+        const progressBar = document.querySelector('.progress-bar');
+        let width = 0;
+        const interval = setInterval(() => {
+            width += 2;
+            progressBar.style.width = width + '%';
+            if (width >= 100) {
+                clearInterval(interval);
+            }
+        }, 50);
+    }
+
+    hideLoading() {
+        this.loadingOverlay.classList.remove('show');
+    }
+
+    async switchCamera() {
+        if (this.devices.length <= 1) {
+            alert('No additional cameras found');
+            return;
+        }
+        
+        this.currentDeviceIndex = (this.currentDeviceIndex + 1) % this.devices.length;
+        this.stopCamera();
+        await this.startCamera(this.devices[this.currentDeviceIndex].deviceId);
+    }
+
+    async selectCamera(deviceId) {
+        if (deviceId && this.stream) {
+            this.stopCamera();
+            await this.startCamera(deviceId);
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('Camera access is not supported in this browser.');
+        return;
+    }
+
+    new ModernCamera();
+});
+</script>
+{% endblock %}

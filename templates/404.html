@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found - PlantDiagnose{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="glass-card p-5 text-center fade-in-up">
+                <div class="mb-4">
+                    <i class="fas fa-search fa-4x text-muted"></i>
+                </div>
+                <h1 class="fw-bold mb-3">Page Not Found</h1>
+                <h2 class="text-muted h4 mb-4">404 Error</h2>
+                <p class="text-muted mb-4">
+                    The page you're looking for doesn't exist or has been moved.
+                </p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary-modern btn-modern">
+                        <i class="fas fa-home"></i>
+                        Go Home
+                    </a>
+                    <a href="{{ url_for('upload_file') }}" class="btn btn-secondary-modern btn-modern">
+                        <i class="fas fa-upload"></i>
+                        Start Analysis
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

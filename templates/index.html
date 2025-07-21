@@ -1,0 +1,395 @@
+{% extends "base.html" %}
+
+{% block title %}PlantDiagnose - AI Plant Disease Detection{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-4">
+    <!-- Hero Section -->
+    <div class="hero-section fade-in-up">
+        <h1 class="hero-title">
+            <i class="fas fa-leaf me-3 icon-gradient"></i>
+            AI Plant Health Analysis
+        </h1>
+        <p class="hero-subtitle">
+            Professional-grade plant disease detection powered by EfficientNet B4 deep learning. 
+            Get instant, accurate diagnosis with 99.45% accuracy across 39 disease classes.
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{{ url_for('upload_file') }}" class="btn btn-primary-modern btn-modern">
+                <i class="fas fa-upload"></i>
+                Start Analysis
+            </a>
+            <a href="{{ url_for('camera') }}" class="btn btn-secondary-modern btn-modern">
+                <i class="fas fa-camera"></i>
+                Live Camera
+            </a>
+        </div>
+    </div>
+
+    <!-- Core Features Grid -->
+    <div class="row g-4 mt-2 mb-5">
+        <div class="col-lg-4 fade-in-up" style="animation-delay: 0.2s;">
+            <div class="glass-card p-4 h-100 text-center">
+                <div class="mb-3">
+                    <div class="feature-icon-wrapper">
+                        <i class="fas fa-brain fa-3x icon-gradient"></i>
+                    </div>
+                </div>
+                <h4 class="fw-bold mb-3">Advanced AI Detection</h4>
+                <p class="text-muted">
+                    EfficientNet B4 neural network trained on 70K+ images for precision plant disease identification across multiple species.
+                </p>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 fade-in-up" style="animation-delay: 0.3s;">
+            <div class="glass-card p-4 h-100 text-center">
+                <div class="mb-3">
+                    <div class="feature-icon-wrapper">
+                        <i class="fas fa-seedling fa-3x icon-gradient"></i>
+                    </div>
+                </div>
+                <h4 class="fw-bold mb-3">Comprehensive Coverage</h4>
+                <p class="text-muted">
+                    39 disease classes across 15+ plant species including tomato, apple, corn, grape, potato, and pepper diseases.
+                </p>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 fade-in-up" style="animation-delay: 0.4s;">
+            <div class="glass-card p-4 h-100 text-center">
+                <div class="mb-3">
+                    <div class="feature-icon-wrapper">
+                        <i class="fas fa-stopwatch fa-3x icon-gradient"></i>
+                    </div>
+                </div>
+                <h4 class="fw-bold mb-3">Instant Results</h4>
+                <p class="text-muted">
+                    Real-time analysis with detailed diagnosis, confidence scores, and professional treatment recommendations in under 2 seconds.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Metrics -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="glass-card-minimal p-4 fade-in-up" style="animation-delay: 0.5s;">
+                <div class="row text-center">
+                    <div class="col-6 col-md-3">
+                        <div class="py-3">
+                            <h3 class="fw-bold mb-1 text-gradient counter" data-target="99.45">0</h3>
+                            <small class="text-muted">% Accuracy</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="py-3">
+                            <h3 class="fw-bold mb-1 text-gradient counter" data-target="70">0</h3>
+                            <small class="text-muted">K+ Training Images</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="py-3">
+                            <h3 class="fw-bold mb-1 text-gradient counter" data-target="39">0</h3>
+                            <small class="text-muted">Disease Classes</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="py-3">
+                            <h3 class="fw-bold mb-1 text-gradient counter" data-target="15">0</h3>
+                            <small class="text-muted">+ Plant Species</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supported Plants -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="glass-card p-4 fade-in-up" style="animation-delay: 0.6s;">
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold">
+                        <i class="fas fa-leaf me-2 icon-gradient"></i>
+                        Supported Plant Species
+                    </h3>
+                    <p class="text-muted">Advanced disease detection across major agricultural crops</p>
+                </div>
+                
+                <div class="row g-3">
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="plant-species-card">
+                            <i class="fas fa-apple-alt plant-icon"></i>
+                            <h6 class="fw-bold">Apple</h6>
+                            <small class="text-muted">4 conditions</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="plant-species-card">
+                            <i class="fas fa-seedling plant-icon"></i>
+                            <h6 class="fw-bold">Tomato</h6>
+                            <small class="text-muted">10 conditions</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="plant-species-card">
+                            <i class="fas fa-corn plant-icon"></i>
+                            <h6 class="fw-bold">Corn</h6>
+                            <small class="text-muted">4 conditions</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="plant-species-card">
+                            <i class="fas fa-wine-bottle plant-icon"></i>
+                            <h6 class="fw-bold">Grape</h6>
+                            <small class="text-muted">4 conditions</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="plant-species-card">
+                            <i class="fas fa-carrot plant-icon"></i>
+                            <h6 class="fw-bold">Potato</h6>
+                            <small class="text-muted">3 conditions</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="plant-species-card">
+                            <i class="fas fa-pepper-hot plant-icon"></i>
+                            <h6 class="fw-bold">Pepper</h6>
+                            <small class="text-muted">3 conditions</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="plant-species-card">
+                            <i class="fas fa-tree plant-icon"></i>
+                            <h6 class="fw-bold">Cherry</h6>
+                            <small class="text-muted">2 conditions</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="plant-species-card">
+                            <i class="fas fa-leaf plant-icon"></i>
+                            <h6 class="fw-bold">+ More</h6>
+                            <small class="text-muted">10+ species</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Process -->
+    <div class="row mb-5">
+        <div class="col-lg-10 mx-auto">
+            <div class="glass-card p-4 fade-in-up" style="animation-delay: 0.7s;">
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold">
+                        <i class="fas fa-cogs me-2 icon-gradient"></i>
+                        How It Works
+                    </h3>
+                    <p class="text-muted">Simple 3-step process for professional plant health analysis</p>
+                </div>
+                
+                <div class="row g-4 text-center">
+                    <div class="col-md-4">
+                        <div class="process-step">
+                            <div class="step-number">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <h6 class="fw-bold mt-3 mb-2">Capture Image</h6>
+                            <p class="text-muted small">Upload photo or use live camera to capture plant with disease symptoms</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="process-step">
+                            <div class="step-number">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <h6 class="fw-bold mt-3 mb-2">AI Analysis</h6>
+                            <p class="text-muted small">Advanced neural network processes image and identifies disease patterns</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="process-step">
+                            <div class="step-number">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <h6 class="fw-bold mt-3 mb-2">Get Results</h6>
+                            <p class="text-muted small">Receive detailed diagnosis with treatment recommendations and confidence scores</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Process Flow Connector -->
+                <div class="process-connector d-none d-md-block">
+                    <div class="connector-line"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Start CTA -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="glass-card-minimal p-4 text-center fade-in-up" style="animation-delay: 0.8s;">
+                <h4 class="fw-bold mb-3">Ready to Start Analysis?</h4>
+                <p class="text-muted mb-4">Get professional-grade plant health insights in seconds</p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="{{ url_for('upload_file') }}" class="btn btn-success-modern btn-modern">
+                        <i class="fas fa-rocket"></i>
+                        Begin Analysis
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.feature-icon-wrapper {
+    transition: all 0.3s ease;
+}
+
+.glass-card:hover .feature-icon-wrapper {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.plant-species-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.plant-species-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.plant-icon {
+    font-size: 2rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+.process-step {
+    position: relative;
+    z-index: 2;
+}
+
+.step-number {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.process-step:hover .step-number {
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
+}
+
+.process-connector {
+    position: relative;
+    margin-top: -35px;
+    z-index: 1;
+}
+
+.connector-line {
+    height: 2px;
+    background: linear-gradient(90deg, transparent 15%, var(--primary) 50%, transparent 85%);
+    margin: 0 10%;
+}
+
+.counter {
+    transition: all 0.3s ease;
+}
+
+/* Animations */
+@keyframes countUp {
+    from { opacity: 0.5; }
+    to { opacity: 1; }
+}
+
+.counter.counting {
+    animation: countUp 0.1s ease;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .plant-species-card {
+        padding: 1rem 0.5rem;
+    }
+    
+    .step-number {
+        width: 60px;
+        height: 60px;
+        font-size: 1.2rem;
+    }
+    
+    .process-connector {
+        display: none !important;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Counter animation
+    const counters = document.querySelectorAll('.counter');
+    const animateCounter = (counter) => {
+        const target = parseInt(counter.getAttribute('data-target'));
+        const increment = target / 100;
+        let current = 0;
+        
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            
+            if (target === 99.45) {
+                counter.textContent = current.toFixed(2);
+            } else {
+                counter.textContent = Math.floor(current);
+            }
+            
+            counter.classList.add('counting');
+            setTimeout(() => counter.classList.remove('counting'), 100);
+        }, 30);
+    };
+
+    // Intersection Observer for counter animation
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const counter = entry.target;
+                if (!counter.classList.contains('animated')) {
+                    counter.classList.add('animated');
+                    setTimeout(() => animateCounter(counter), 200);
+                }
+            }
+        });
+    });
+
+    counters.forEach(counter => observer.observe(counter));
+});
+</script>
+{% endblock %}

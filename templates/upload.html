@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Image - PlantDiagnose{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="glass-card p-5 fade-in-up">
+                <!-- Header -->
+                <div class="text-center mb-4">
+                    <div class="mb-3">
+                        <i class="fas fa-upload fa-4x icon-gradient"></i>
+                    </div>
+                    <h2 class="fw-bold">Upload Plant Image</h2>
+                    <p class="text-muted">Upload a clear photo for AI-powered disease analysis</p>
+                </div>
+
+                <!-- Upload Form -->
+                <form method="POST" enctype="multipart/form-data" class="upload-form">
+                    <div class="upload-area" id="uploadArea">
+                        <!-- Default State -->
+                        <div class="upload-content" id="uploadContent">
+                            <i class="fas fa-cloud-upload-alt mb-3 text-muted" style="font-size: 3rem;"></i>
+                            <h5 class="mb-2">Drag & Drop your image here</h5>
+                            <p class="text-muted mb-3">or click to browse files</p>
+                            <input type="file" name="file" id="fileInput" accept="image/*" required class="d-none">
+                            <button type="button" class="btn btn-primary-modern btn-modern" onclick="document.getElementById('fileInput').click()">
+                                <i class="fas fa-folder-open"></i>
+                                Choose File
+                            </button>
+                        </div>
+                        
+                        <!-- Preview State -->
+                        <div class="upload-preview" id="uploadPreview" style="display: none;">
+                            <img id="previewImage" src="" alt="Preview" class="preview-image mb-3">
+                            <div class="preview-info text-center">
+                                <h6 id="fileName" class="mb-2 fw-bold"></h6>
+                                <p id="fileSize" class="text-muted mb-3"></p>
+                                <div class="d-flex gap-3 justify-content-center">
+                                    <button type="submit" class="btn btn-success-modern btn-modern" id="analyzeBtn">
+                                        <i class="fas fa-microscope"></i>
+                                        Analyze Plant
+                                    </button>
+                                    <button type="button" class="btn btn-outline-modern btn-modern" onclick="clearPreview()">
+                                        <i class="fas fa-times"></i>
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Loading State -->
+                        <div class="upload-loading" id="uploadLoading" style="display: none;">
+                            <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
+                            <h5>Analyzing your plant...</h5>
+                            <p class="text-muted">AI is examining the image for disease patterns</p>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Tips Section -->
+                <div class="mt-4">
+                    <h6 class="fw-bold mb-3">
+                        <i class="fas fa-lightbulb me-2 text-warning"></i>
+                        Tips for Better Results
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="tip-item">
+                                <i class="fas fa-sun text-warning me-2"></i>
+                                <small><strong>Good Lighting:</strong> Use natural daylight</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="tip-item">
+                                <i class="fas fa-search-plus text-info me-2"></i>
+                                <small><strong>Close-up:</strong> Focus on affected areas</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="tip-item">
+                                <i class="fas fa-eye text-success me-2"></i>
+                                <small><strong>Clear Focus:</strong> Ensure sharp image</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="tip-item">
+                                <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                                <small><strong>Show Symptoms:</strong> Include visible signs</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Supported Formats -->
+                <div class="mt-4 text-center">
+                    <small class="text-muted">
+                        Supported: JPG, PNG, GIF, BMP, WEBP • Max: 16MB
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+.upload-area {
+    border: 2px dashed var(--gray-300);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.5);
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-area:hover {
+    border-color: var(--primary);
+    background: rgba(5, 150, 105, 0.05);
+}
+
+.upload-area.dragover {
+    border-color: var(--primary);
+    background: rgba(5, 150, 105, 0.1);
+    transform: scale(1.02);
+}
+
+.preview-image {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.tip-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.upload-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+class ModernUpload {
+    constructor() {
+        this.uploadArea = document.getElementById('uploadArea');
+        this.fileInput = document.getElementById('fileInput');
+        this.uploadContent = document.getElementById('uploadContent');
+        this.uploadPreview = document.getElementById('uploadPreview');
+        this.uploadLoading = document.getElementById('uploadLoading');
+        this.previewImage = document.getElementById('previewImage');
+        this.fileName = document.getElementById('fileName');
+        this.fileSize = document.getElementById('fileSize');
+        
+        this.initializeEvents();
+    }
+    
+    initializeEvents() {
+        // Drag and drop events
+        this.uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            this.uploadArea.classList.add('dragover');
+        });
+        
+        this.uploadArea.addEventListener('dragleave', () => {
+            this.uploadArea.classList.remove('dragover');
+        });
+        
+        this.uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            this.uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                this.handleFile(files[0]);
+            }
+        });
+        
+        // File input change
+        this.fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                this.handleFile(e.target.files[0]);
+            }
+        });
+        
+        // Form submission
+        document.querySelector('.upload-form').addEventListener('submit', (e) => {
+            this.showLoading();
+        });
+    }
+    
+    handleFile(file) {
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Please upload a valid image file');
+            return;
+        }
+        
+        // Validate file size (16MB limit)
+        const maxSize = 16 * 1024 * 1024;
+        if (file.size > maxSize) {
+            alert('File size must be less than 16MB');
+            return;
+        }
+        
+        // Update file input
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        this.fileInput.files = dataTransfer.files;
+        
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            this.showPreview(e.target.result, file);
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    showPreview(imageSrc, file) {
+        this.previewImage.src = imageSrc;
+        this.fileName.textContent = file.name;
+        this.fileSize.textContent = this.formatFileSize(file.size);
+        
+        this.uploadContent.style.display = 'none';
+        this.uploadPreview.style.display = 'block';
+    }
+    
+    showLoading() {
+        this.uploadContent.style.display = 'none';
+        this.uploadPreview.style.display = 'none';
+        this.uploadLoading.style.display = 'block';
+    }
+    
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+}
+
+function clearPreview() {
+    document.getElementById('uploadContent').style.display = 'block';
+    document.getElementById('uploadPreview').style.display = 'none';
+    document.getElementById('fileInput').value = '';
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    new ModernUpload();
+});
+</script>
+{% endblock %}

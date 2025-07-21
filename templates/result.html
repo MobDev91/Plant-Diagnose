@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Results - PlantDiagnose{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Results Header -->
+            <div class="text-center mb-4 fade-in-up">
+                <h2 class="fw-bold">
+                    <i class="fas fa-microscope me-2 icon-gradient"></i>Analysis Complete
+                </h2>
+                <p class="text-muted">AI-powered plant disease detection results</p>
+            </div>
+
+            <div class="row g-4">
+                <!-- Image Column -->
+                <div class="col-lg-5 fade-in-up" style="animation-delay: 0.2s;">
+                    <div class="glass-card p-4">
+                        <h5 class="mb-3">
+                            <i class="fas fa-image me-2"></i>Analyzed Image
+                        </h5>
+                        <img src="{{ url_for('static', filename=image_path) }}" 
+                             alt="Plant Analysis" 
+                             class="img-fluid result-image">
+                    </div>
+                </div>
+
+                <!-- Results Column -->
+                <div class="col-lg-7 fade-in-up" style="animation-delay: 0.3s;">
+                    <!-- Primary Result -->
+                    <div class="glass-card p-4 mb-4">
+                        <div class="result-header mb-3">
+                            {% if result.is_healthy %}
+                                <div class="status-badge healthy">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Healthy Plant</span>
+                                </div>
+                            {% else %}
+                                <div class="status-badge diseased">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span>Disease Detected</span>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="plant-info">
+                            <h3 class="plant-name text-gradient fw-bold">{{ result.plant_name }}</h3>
+                            {% if not result.is_healthy %}
+                                <h4 class="disease-name text-danger mb-3">{{ result.disease_name }}</h4>
+                            {% endif %}
+                            
+                            <div class="confidence-meter">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-bold">Confidence Level</span>
+                                    <span class="fw-bold">{{ "%.1f"|format(result.confidence) }}%</span>
+                                </div>
+                                <div class="progress mb-3" style="height: 10px; border-radius: 10px;">
+                                    <div class="progress-bar 
+                                        {% if result.confidence >= 80 %}bg-success
+                                        {% elif result.confidence >= 60 %}bg-warning
+                                        {% else %}bg-danger{% endif %}" 
+                                         style="width: {{ result.confidence }}%; border-radius: 10px;">
+                                    </div>
+                                </div>
+                                <small class="text-muted">
+                                    {% if result.confidence >= 80 %}
+                                        High confidence - Very reliable result
+                                    {% elif result.confidence >= 60 %}
+                                        Medium confidence - Fairly reliable result
+                                    {% else %}
+                                        Low confidence - Consider retaking image
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Disease Information -->
+                    {% if not result.is_healthy %}
+                    <div class="glass-card p-4 mb-4">
+                        <h5 class="mb-3">
+                            <i class="fas fa-info-circle me-2"></i>Disease Information
+                        </h5>
+                        
+                        <div class="info-section mb-3">
+                            <h6 class="text-primary"><i class="fas fa-file-medical-alt me-2"></i>Description</h6>
+                            <p class="mb-0">{{ result.disease_info.description }}</p>
+                        </div>
+
+                        <div class="info-section mb-3">
+                            <h6 class="text-warning"><i class="fas fa-exclamation-circle me-2"></i>Severity</h6>
+                            <span class="severity-badge severity-{{ result.disease_info.severity.lower().replace(' ', '-') }}">
+                                {{ result.disease_info.severity }}
+                            </span>
+                        </div>
+
+                        <div class="info-section mb-3">
+                            <h6 class="text-success"><i class="fas fa-prescription-bottle-alt me-2"></i>Treatment</h6>
+                            <p class="mb-0">{{ result.disease_info.treatment }}</p>
+                        </div>
+
+                        <div class="info-section">
+                            <h6 class="text-info"><i class="fas fa-shield-alt me-2"></i>Prevention</h6>
+                            <p class="mb-0">{{ result.disease_info.prevention }}</p>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="glass-card p-4 mb-4 text-center">
+                        <i class="fas fa-leaf text-success display-4 mb-3"></i>
+                        <h5 class="text-success">Great News!</h5>
+                        <p class="mb-0">Your {{ result.plant_name }} appears to be healthy. Continue with regular care and monitoring.</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Top Predictions -->
+                    <div class="glass-card p-4 mb-4">
+                        <h5 class="mb-3">
+                            <i class="fas fa-chart-bar me-2"></i>Top Predictions
+                        </h5>
+                        {% for prediction in result.top3_predictions %}
+                        <div class="prediction-item mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="prediction-label">
+                                    <span class="rank fw-bold">#{{ loop.index }}</span>
+                                    <span class="class-name ms-2">{{ prediction.class.replace('___', ' - ').replace('_', ' ') }}</span>
+                                </div>
+                                <span class="confidence-value fw-bold">{{ "%.1f"|format(prediction.confidence) }}%</span>
+                            </div>
+                            <div class="progress" style="height: 6px; border-radius: 10px;">
+                                <div class="progress-bar {% if loop.index == 1 %}bg-primary{% elif loop.index == 2 %}bg-info{% else %}bg-secondary{% endif %}" 
+                                     style="width: {{ prediction.confidence }}%; border-radius: 10px;"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons d-flex gap-3 flex-wrap justify-content-center">
+                        <a href="{{ url_for('upload_file') }}" class="btn btn-success-modern btn-modern">
+                            <i class="fas fa-upload"></i>Analyze Another
+                        </a>
+                        <a href="{{ url_for('camera') }}" class="btn btn-secondary-modern btn-modern">
+                            <i class="fas fa-camera"></i>Use Camera
+                        </a>
+                        <button onclick="shareResult()" class="btn btn-outline-modern btn-modern">
+                            <i class="fas fa-share"></i>Share Result
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="disclaimer mt-5 fade-in-up" style="animation-delay: 0.5s;">
+                <div class="glass-card-minimal p-4">
+                    <h6 class="text-warning"><i class="fas fa-exclamation-triangle me-2"></i>Important Disclaimer</h6>
+                    <p class="mb-0 text-muted">
+                        This AI analysis is for informational purposes only. For critical plant health issues or commercial applications, 
+                        please consult with qualified agricultural professionals.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+.result-image {
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    max-height: 400px;
+    width: 100%;
+    object-fit: cover;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    gap: 8px;
+}
+
+.status-badge.healthy {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-badge.diseased {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.severity-badge {
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.severity-low { 
+    background: rgba(16, 185, 129, 0.1); 
+    color: var(--success); 
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.severity-moderate { 
+    background: rgba(245, 158, 11, 0.1); 
+    color: var(--warning);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.severity-high { 
+    background: rgba(239, 68, 68, 0.1); 
+    color: var(--danger);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.severity-very-high { 
+    background: rgba(139, 0, 0, 0.1); 
+    color: #8b0000;
+    border: 1px solid rgba(139, 0, 0, 0.3);
+}
+
+.prediction-item {
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.prediction-item:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
+}
+
+.rank {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function shareResult() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'PlantDiagnose Analysis Result',
+            text: `Plant Analysis: {{ result.plant_name }}{% if not result.is_healthy %} - {{ result.disease_name }}{% endif %} ({{ "%.1f"|format(result.confidence) }}% confidence)`,
+            url: window.location.href
+        }).catch(console.error);
+    } else {
+        // Fallback: copy to clipboard
+        const text = `Plant Analysis Result:\n{{ result.plant_name }}{% if not result.is_healthy %} - {{ result.disease_name }}{% endif %}\nConfidence: {{ "%.1f"|format(result.confidence) }}%\n${window.location.href}`;
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Result copied to clipboard!');
+        }).catch(() => {
+            alert('Unable to share. Please copy the URL manually.');
+        });
+    }
+}
+
+// Add animation to progress bars
+document.addEventListener('DOMContentLoaded', function() {
+    const progressBars = document.querySelectorAll('.progress-bar');
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+            bar.style.width = width;
+            bar.style.transition = 'width 1s ease-in-out';
+        }, 500);
+    });
+});
+</script>
+{% endblock %}
