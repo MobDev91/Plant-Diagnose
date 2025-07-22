@@ -264,8 +264,7 @@ This application is designed for educational and research purposes. While our mo
 
 For questions, bug reports, or feature requests:
 - Open an issue on GitHub
-- Contact: [your-email@example.com]
-- Documentation: [Link to docs]
+- Contact: [oussama.benyssef@gmail.com]
 
 ---
 
